@@ -5,8 +5,7 @@ right-click menu, powered directly by
 [BS-RoFormer HyperACE](https://huggingface.co/pcunwa/BS-Roformer-HyperACE).
 
 This repository contains only the HyperACE runner and its required Python
-architecture/configuration files. It no longer uses Ultimate Vocal Remover,
-Demucs, MDX-Net, or VR models.
+architecture/configuration files.
 
 ## Output
 
@@ -59,8 +58,7 @@ For CPU-only use, omit the CUDA index URL when installing `torch`.
 
 ### 3. Download the HyperACE model weights
 
-The checkpoints are not committed to this fork because GitHub does not allow
-new LFS uploads to public forks. Download them from the upstream
+The checkpoints are not included in this repository. Download them from the upstream
 [BS-RoFormer HyperACE file list](https://huggingface.co/pcunwa/BS-Roformer-HyperACE/tree/main).
 
 Download these two files and put them in these exact locations:
