@@ -1,9 +1,4 @@
-"""Attention primitive used by the bundled BS-Roformer HyperACE model.
-
-The upstream model imports this helper from a larger package.  Keeping the
-small, dependency-free implementation here makes the copied model runnable in
-this standalone UVR/right-click distribution.
-"""
+"""Attention primitive used by the bundled BS-RoFormer HyperACE model."""
 
 from __future__ import annotations
 
@@ -20,8 +15,6 @@ class Attend(nn.Module):
         self.flash = flash
 
     def forward(self, queries, keys, values):
-        # PyTorch selects the best available CUDA kernel (including Flash
-        # Attention when supported) for this operation.
         return F.scaled_dot_product_attention(
             queries,
             keys,
