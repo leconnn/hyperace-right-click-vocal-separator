@@ -6,3 +6,6 @@ __pycache__/
 
 # Local registry exports; the installer writes the menu directly
 *.reg
+
+# Unfinished model downloads from setup.ps1
+*.part

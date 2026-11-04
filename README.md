@@ -29,20 +29,53 @@ window.
 ## What you need
 
 - Windows 10 or 11
-- [Python](https://www.python.org/downloads/windows/) 3.10 to 3.13 (64-bit)
+- [Python](https://www.python.org/downloads/windows/) 3.10 to 3.13 (64-bit).
+  The automatic setup can install it for you.
 - About 6 GB of free disk space for PyTorch and the models
 - An NVIDIA graphics card with 8 GB of memory is recommended. Without one the
   separator still works on the CPU, but a song can take several minutes.
 
 ## Installation
 
-Open **PowerShell** in the folder where you downloaded or cloned this
-repository, then follow these four steps.
+### Automatic (recommended)
+
+1. Download this repository: click the green **Code** button on GitHub, choose
+   **Download ZIP**, and extract it somewhere permanent, such as
+   `Documents\HyperACE`. (Or clone it with git.)
+2. Open the folder and double-click **`setup.bat`**.
+
+The setup does everything in the manual steps below for you:
+
+- finds Python, or offers to install Python 3.12 if you don't have it
+- creates the Python environment
+- installs PyTorch (the GPU build if you have an NVIDIA card, otherwise the CPU
+  build) and the other packages
+- downloads the AI models (about 550 MB)
+- adds the right-click menu
+
+The first run downloads about 3 GB and can take 10 to 30 minutes, depending
+on your internet speed. Running it again skips anything that is already done,
+so you can also use it to repair an installation or after moving the folder.
+
+If Windows shows a "Windows protected your PC" warning, click **More info**,
+then **Run anyway**.
+
+Setup options (run from PowerShell in the folder):
+
+| Option | What it does |
+| --- | --- |
+| `.\setup.bat -Cpu` | Installs the CPU build of PyTorch even if you have an NVIDIA card. |
+| `.\setup.bat -Yes` | Installs Python without asking first, if it's missing. |
+
+### Manual
+
+If you'd rather do it yourself, open **PowerShell** in the folder where you
+downloaded or cloned this repository, then follow these four steps.
 
 > Tip: in File Explorer, open the folder, click the address bar, type
 > `powershell` and press Enter to open PowerShell in that folder.
 
-### Step 1: Create a Python environment
+#### Step 1: Create a Python environment
 
 This keeps the separator's packages separate from anything else on your PC.
 
@@ -54,7 +87,7 @@ py -3.11 -m venv venv
 If you have a different Python version installed, change `-3.11` to match it
 (for example `-3.12`). Run `py --list` to see which versions you have.
 
-### Step 2: Install PyTorch and the other packages
+#### Step 2: Install PyTorch and the other packages
 
 **With an NVIDIA graphics card** (recommended), install the CUDA build of
 PyTorch:
@@ -78,7 +111,7 @@ Then install the remaining packages:
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### Step 3: Download the AI models
+#### Step 3: Download the AI models
 
 The model files are too large for GitHub, so download them from
 [the HyperACE model page](https://huggingface.co/pcunwa/BS-Roformer-HyperACE/tree/main)
@@ -97,7 +130,7 @@ different model version.
 saved in this folder as a backup. It is only used when one of the v2 models
 above is missing.
 
-### Step 4: Add the right-click menu
+#### Step 4: Add the right-click menu
 
 ```powershell
 PowerShell -ExecutionPolicy Bypass -File .\install_context_menu.ps1
@@ -112,8 +145,8 @@ If the menu doesn't appear right away, restart Explorer or sign out and back
 in.
 
 **Important:** the menu points to this folder. If you move or rename the
-folder, create the Python environment again (step 1 and 2) and rerun the
-installer.
+folder, double-click `setup.bat` again (or rerun the installer) to update the
+menu.
 
 ## Uninstalling
 
@@ -155,8 +188,8 @@ from **Edit environment variables for your account** in the Start menu.
 
 **It's very slow.**
 Rerun the installer and look at the GPU check. If it says no CUDA GPU was
-found but you have an NVIDIA card, reinstall PyTorch with the CUDA command in
-step 2.
+found but you have an NVIDIA card, update your NVIDIA driver and double-click
+`setup.bat` again; it replaces a CPU-only PyTorch with the GPU build.
 
 ## Files in this repository
 
@@ -167,7 +200,8 @@ step 2.
 | `bs_roformer.py`, `hyperace_attend.py` | The HyperACE model architecture. |
 | `v2_voc\`, `v2_inst\` | Architecture and settings for the v2 vocal and instrumental models. |
 | `config.yaml` | Settings for the optional older model. |
-| `install_context_menu.ps1` | Adds or removes the right-click menu. |
+| `setup.bat`, `setup.ps1` | Automatic setup: installs everything and adds the menu. |
+| `install_context_menu.ps1` | Checks the installation and adds or removes the right-click menu. |
 
 ## Credits
 
