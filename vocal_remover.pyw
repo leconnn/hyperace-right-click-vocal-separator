@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import msvcrt
 import os
 import sys
 import tempfile
@@ -57,27 +58,38 @@ def dequeue() -> str | None:
     return None
 
 
+_lock_stream = None
+
+
 def take_lock() -> bool:
-    for _ in range(10):
-        try:
-            descriptor = os.open(LOCK_FILE, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.write(descriptor, str(os.getpid()).encode())
-            os.close(descriptor)
-            return True
-        except FileExistsError:
-            try:
-                owner = int(LOCK_FILE.read_text(encoding="utf-8").strip())
-                os.kill(owner, 0)
-                return False
-            except ProcessLookupError:
-                LOCK_FILE.unlink(missing_ok=True)
-            except (OSError, ValueError):
-                time.sleep(0.05)
-    return False
+    # Windows releases this byte-range lock if the process dies, so a crashed
+    # run can never leave a stale lock behind.
+    global _lock_stream
+    try:
+        stream = LOCK_FILE.open("a+b")
+    except OSError:
+        return False
+    try:
+        stream.seek(0)
+        msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+    except OSError:
+        stream.close()
+        return False
+    _lock_stream = stream
+    return True
 
 
 def release_lock() -> None:
-    LOCK_FILE.unlink(missing_ok=True)
+    global _lock_stream
+    if _lock_stream is None:
+        return
+    try:
+        _lock_stream.seek(0)
+        msvcrt.locking(_lock_stream.fileno(), msvcrt.LK_UNLCK, 1)
+    except OSError:
+        pass
+    _lock_stream.close()
+    _lock_stream = None
 
 
 def process_file(path: str, set_status) -> str | None:

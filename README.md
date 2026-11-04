@@ -1,119 +1,180 @@
 # HyperACE Right-Click Vocal Separator
 
-Fast, local vocal and instrumental separation from the Windows Explorer
-right-click menu, powered directly by
-[BS-RoFormer HyperACE](https://huggingface.co/pcunwa/BS-Roformer-HyperACE).
+Split any song into vocals or instrumentals by right-clicking it in Windows
+Explorer. Everything runs locally on your PC using the
+[BS-RoFormer HyperACE](https://huggingface.co/pcunwa/BS-Roformer-HyperACE)
+AI models.
 
-This repository contains only the HyperACE runner and its required Python
-architecture/configuration files.
+## How it works
 
-## Output
+1. Right-click an audio file (or several) in Explorer.
+2. Choose **HyperACE**, then **Separate vocals** or **Separate instrumentals**.
+   On Windows 11, click **Show more options** first (or press **Shift+F10**).
+3. A small progress window appears. When it closes, the result is saved next to
+   the original file:
 
-Right-click a supported audio file and choose **HyperACE**:
+| Menu option | Output file |
+| --- | --- |
+| Separate vocals | `song (vocals).wav` |
+| Separate instrumentals | `song (instrumentals).wav` |
 
-- **Separate vocals** creates `file_name (vocals).wav`.
-- **Separate instrumentals** creates `file_name (instrumentals).wav`.
+Your original file is never changed. Output is 16-bit, 44.1 kHz stereo WAV.
 
-The source audio remains unchanged. Output is stereo 44.1 kHz PCM WAV and is
-written next to the source file.
+Supported formats: `.wav` `.mp3` `.flac` `.m4a` `.aac` `.ogg` `.opus` `.wma`
+`.aiff` `.alac` `.ape` `.tta` `.amr` `.au` `.ra` `.mp1` `.mp2`
 
-## Requirements
+If you select several files, they are processed one after another in the same
+window.
 
-- Windows 10 or later
-- Python 3.10–3.13 (64-bit)
-- NVIDIA GPU recommended; CPU inference works but is considerably slower
-- 8 GB of GPU VRAM recommended for the included v2 models
+## What you need
 
-## Setup
+- Windows 10 or 11
+- [Python](https://www.python.org/downloads/windows/) 3.10 to 3.13 (64-bit)
+- About 6 GB of free disk space for PyTorch and the models
+- An NVIDIA graphics card with 8 GB of memory is recommended. Without one the
+  separator still works on the CPU, but a song can take several minutes.
 
-Run these commands in PowerShell from the cloned repository directory.
+## Installation
 
-### 1. Create the virtual environment
+Open **PowerShell** in the folder where you downloaded or cloned this
+repository, then follow these four steps.
+
+> Tip: in File Explorer, open the folder, click the address bar, type
+> `powershell` and press Enter to open PowerShell in that folder.
+
+### Step 1: Create a Python environment
+
+This keeps the separator's packages separate from anything else on your PC.
 
 ```powershell
 py -3.11 -m venv venv
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 ```
 
-If Python 3.11 is not installed, replace `-3.11` with an available supported
-version, for example `-3.12`.
+If you have a different Python version installed, change `-3.11` to match it
+(for example `-3.12`). Run `py --list` to see which versions you have.
 
-### 2. Install PyTorch and the application dependencies
+### Step 2: Install PyTorch and the other packages
 
-For an NVIDIA GPU, select the command for your CUDA version on
-[PyTorch's installation page](https://pytorch.org/get-started/locally/). For
-example, a CUDA 12.4 installation is:
+**With an NVIDIA graphics card** (recommended), install the CUDA build of
+PyTorch:
 
 ```powershell
 .\venv\Scripts\python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cu124
 ```
 
-Then install the remaining dependencies:
+If that doesn't work with your card or driver, pick the right command for
+your setup on [PyTorch's install page](https://pytorch.org/get-started/locally/).
+
+**Without an NVIDIA graphics card**, install the regular build instead:
+
+```powershell
+.\venv\Scripts\python.exe -m pip install torch
+```
+
+Then install the remaining packages:
 
 ```powershell
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-For CPU-only use, omit the CUDA index URL when installing `torch`.
+### Step 3: Download the AI models
 
-### 3. Download the HyperACE model weights
+The model files are too large for GitHub, so download them from
+[the HyperACE model page](https://huggingface.co/pcunwa/BS-Roformer-HyperACE/tree/main)
+and save them in these exact locations inside this folder:
 
-The checkpoints are not included in this repository. Download them from the upstream
-[BS-RoFormer HyperACE file list](https://huggingface.co/pcunwa/BS-Roformer-HyperACE/tree/main).
-
-Download these two files and put them in these exact locations:
-
-| Download from upstream | Place in this repository |
+| File on the model page | Save it as |
 | --- | --- |
-| `v2_voc/bs_roformer_voc_hyperacev2.ckpt` | `v2_voc/bs_roformer_voc_hyperacev2.ckpt` |
-| `v2_inst/bs_roformer_inst_hyperacev2.ckpt` | `v2_inst/bs_roformer_inst_hyperacev2.ckpt` |
+| `v2_voc/bs_roformer_voc_hyperacev2.ckpt` | `v2_voc\bs_roformer_voc_hyperacev2.ckpt` |
+| `v2_inst/bs_roformer_inst_hyperacev2.ckpt` | `v2_inst\bs_roformer_inst_hyperacev2.ckpt` |
 
-The `v2_voc` and `v2_inst` folders already include the matching
-`bs_roformer.py` and `config.yaml`; do not replace those files with a different
-model version. The first model is used for **Separate vocals** and the second
-for **Separate instrumentals**.
+The `v2_voc` and `v2_inst` folders already contain the matching
+`bs_roformer.py` and `config.yaml`. Don't replace them with files from a
+different model version.
 
-Optional fallback: download the root `bs_hyperace.ckpt` from upstream and place
-it at `bs_hyperace.ckpt`. It is used only when a v2 checkpoint is unavailable.
+*Optional:* the older `bs_hyperace.ckpt` from the root of the model page can be
+saved in this folder as a backup. It is only used when one of the v2 models
+above is missing.
 
-### 4. Install the Explorer context menu
-
-Run the installer from the repository root:
+### Step 4: Add the right-click menu
 
 ```powershell
 PowerShell -ExecutionPolicy Bypass -File .\install_context_menu.ps1
 ```
 
-It validates the local `venv\Scripts\pythonw.exe`, substitutes your checkout's
-absolute path into [a.reg](a.reg), and installs the menu under your current
-Windows user account—no Administrator access is needed. Restart Explorer or
-sign out/in if the **HyperACE** menu does not appear immediately.
+The installer checks each of the steps above, tells you exactly what to fix if
+something is missing, and then adds the **HyperACE** menu. It only changes
+settings for your own Windows account, so you don't need to run it as
+Administrator.
 
-To use a Python environment somewhere else:
+If the menu doesn't appear right away, restart Explorer or sign out and back
+in.
 
-```powershell
-PowerShell -ExecutionPolicy Bypass -File .\install_context_menu.ps1 -PythonPath 'D:\PythonEnvs\hyperace\Scripts\pythonw.exe'
-```
+**Important:** the menu points to this folder. If you move or rename the
+folder, create the Python environment again (step 1 and 2) and rerun the
+installer.
 
-To remove the context menu:
+## Uninstalling
+
+Remove the right-click menu:
 
 ```powershell
 PowerShell -ExecutionPolicy Bypass -File .\install_context_menu.ps1 -Uninstall
 ```
 
-## Performance tuning
+Then delete this folder.
 
-The runner uses CUDA mixed precision and defaults to 12-second chunks on CUDA.
-This is tuned for approximately 8 GB VRAM. Set `HYPERACE_CHUNK_SECONDS` before
-launching Explorer to override it; use a smaller value for out-of-memory errors
-and a larger one only if your GPU has sufficient VRAM.
+## Installer options
+
+| Option | What it does |
+| --- | --- |
+| `-Uninstall` | Removes the right-click menu. |
+| `-PythonPath <path>` | Uses a different Python environment, e.g. `-PythonPath 'D:\envs\hyperace\Scripts\pythonw.exe'`. |
+| `-Force` | Installs the menu even if some checks fail. |
+
+## Troubleshooting
+
+**Nothing happens when I click the menu.**
+Check the log file at `%TEMP%\hyperace_right_click.log` (paste that into the
+Explorer address bar). Rerunning the installer also checks for common
+problems.
+
+**"CUDA out of memory" in the log.**
+Your graphics card ran out of memory. The separator processes audio in
+12-second pieces by default; make them smaller by setting an environment
+variable, then restart Explorer (or sign out and back in):
+
+```powershell
+setx HYPERACE_CHUNK_SECONDS 8
+```
+
+The minimum is 4 seconds. If you have plenty of graphics memory, a larger
+value can be a little faster. To go back to the default, remove the variable
+from **Edit environment variables for your account** in the Start menu.
+
+**It's very slow.**
+Rerun the installer and look at the GPU check. If it says no CUDA GPU was
+found but you have an NVIDIA card, reinstall PyTorch with the CUDA command in
+step 2.
+
+## Files in this repository
+
+| File | Purpose |
+| --- | --- |
+| `vocal_remover.pyw` | Runs when you click the menu; shows the progress window. |
+| `hyperace_separator.py` | Loads the model and separates the audio. |
+| `bs_roformer.py`, `hyperace_attend.py` | The HyperACE model architecture. |
+| `v2_voc\`, `v2_inst\` | Architecture and settings for the v2 vocal and instrumental models. |
+| `config.yaml` | Settings for the optional older model. |
+| `install_context_menu.ps1` | Adds or removes the right-click menu. |
 
 ## Credits
 
-The model implementation and weights are from
+The model architecture and weights are from
 [pcunwa/BS-Roformer-HyperACE](https://huggingface.co/pcunwa/BS-Roformer-HyperACE).
-Follow the upstream repository's license, model terms, and attribution
-requirements when using or redistributing the weights.
+Follow that repository's license, model terms, and attribution requirements
+when using or redistributing the weights.
 
 HyperACE credits [anvuew/BS-RoFormer](https://huggingface.co/anvuew/BS-RoFormer)
 as its base. Its `SegmModel` includes components based on
