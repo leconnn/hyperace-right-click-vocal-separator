@@ -179,3 +179,10 @@ when using or redistributing the weights.
 HyperACE credits [anvuew/BS-RoFormer](https://huggingface.co/anvuew/BS-RoFormer)
 as its base. Its `SegmModel` includes components based on
 ["Hypergraph-Based High-Order Representation Learning"](https://arxiv.org/abs/2506.17733).
+
+## License
+
+The code in this repository is released under the [MIT License](LICENSE).
+The model architecture files come from the upstream HyperACE project, and the
+model weights are not included; both are subject to the upstream project's own
+license and terms.
